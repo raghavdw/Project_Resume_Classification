@@ -14,21 +14,18 @@ class Resume(BaseModel):
 @app.on_event("startup")
 def load_model():
     global model, vectorizer
-    try:
-        model = joblib.load(config.model_path)
-        vectorizer = joblib.load(config.vectorizer_path)
-    except Exception as e:
-        raise RuntimeError(f"Error loading model: {str(e)}")
+    model = joblib.load(config.model_path)  # Load the pre-trained model
+    vectorizer = joblib.load(config.vectorizer_path)  # Load the vectorizer
 
 @app.post("/predict")
 def predict(resume: Resume):
     try:
-        features = vectorizer.transform([resume.resume_text])
-        prediction = model.predict(features)
-        return {"prediction": prediction[0]}
+        features = vectorizer.transform([resume.resume_text])  # Transform the input resume text
+        prediction = model.predict(features)  # Make a prediction
+        return {"prediction": prediction[0]}  # Return the prediction
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"Prediction failed: {str(e)}")
-
-if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    
+@app.get("/")
+def read_root():
+    return {"message": "Welcome to the Resume Classification API"}
