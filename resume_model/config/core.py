@@ -1,96 +1,44 @@
-# Path setup, and access the config.yml file, datasets folder & trained models
-import sys
-from pathlib import Path
-file = Path(__file__).resolve()
-parent, root = file.parent, file.parents[1]
-sys.path.append(str(root))
+import yaml
+import os
 
-from typing import Dict, List
-from pydantic import BaseModel
-from strictyaml import YAML, load
+class Config:
+    def __init__(self):
+        config_path = os.path.join(os.path.dirname(__file__), '../config.yml')
+        with open(config_path, 'r') as file:
+            self.config = yaml.safe_load(file)
 
-import resume_model
+    @property
+    def data_path(self):
+        return self.config['data_path']
 
-# Project Directories
-PACKAGE_ROOT = Path(resume_model.__file__).resolve().parent
-#print(PACKAGE_ROOT)
-ROOT = PACKAGE_ROOT.parent
-CONFIG_FILE_PATH = PACKAGE_ROOT / "config.yml"
-#print(CONFIG_FILE_PATH)
+    @property
+    def model_path(self):
+        return self.config['model_path']
 
-DATASET_DIR = PACKAGE_ROOT / "datasets"
-TRAINED_MODEL_DIR = PACKAGE_ROOT / "trained_models"
+    @property
+    def vectorizer_path(self):
+        return self.config['vectorizer_path']
 
+    @property
+    def model_type(self):
+        return self.config['model_type']
 
-class AppConfig(BaseModel):
-    """
-    Application-level config.
-    """
+    @property
+    def tfidf_max_features(self):
+        return self.config['tfidf_max_features']
 
-    package_name: str
-    training_data_file: str
-    test_data_file: str
-    pipeline_save_file: str
+    @property
+    def logging_level(self):
+        return self.config['logging_level']
 
+    @property
+    def train_test_split_ratio(self):
+        return self.config['train_test_split_ratio']
 
-class ModelConfig(BaseModel):
-    """
-    All configuration relevant to model
-    training and feature engineering.
-    """
+    @property
+    def random_seed(self):
+        return self.config['random_seed']
 
-    target: str
-    features: List[str]
-    unused_fields: List[str]
-    Category_var: str 
-    Resume_var:str 
-    
-  
-    test_size:float
-    val_size: float
-    random_state: int
-    num_labels: int
-
-
-class Config(BaseModel):
-    """Master config object."""
-
-    app_config: AppConfig
-    model_config: ModelConfig
-
-
-def find_config_file() -> Path:
-    """Locate the configuration file."""
-    if CONFIG_FILE_PATH.is_file():
-        return CONFIG_FILE_PATH
-    raise Exception(f"Config not found at {CONFIG_FILE_PATH!r}")
-
-
-def fetch_config_from_yaml(cfg_path: Path = None) -> YAML:
-    """Parse YAML containing the package configuration."""
-
-    if not cfg_path:
-        cfg_path = find_config_file()
-
-    if cfg_path:
-        with open(cfg_path, "r") as conf_file:
-            parsed_config = load(conf_file.read())
-            return parsed_config
-    raise OSError(f"Did not find config file at path: {cfg_path}")
-
-
-def create_and_validate_config(parsed_config: YAML = None) -> Config:
-    """Run validation on config values."""
-    if parsed_config is None:
-        parsed_config = fetch_config_from_yaml()
-
-    # specify the data attribute from the strictyaml YAML type.
-    _config = Config(
-        app_config=AppConfig(**parsed_config.data),
-        model_config=ModelConfig(**parsed_config.data),
-    )
-
-    return _config
-
-
-config = create_and_validate_config()
+# Example usage
+config = Config()
+print(config.data_path)

@@ -1,4 +1,4 @@
-#!/Users/raghavwate/Documents/Project_Resume_Classificaton/Project_Resume_Classification/resume_venv/bin/python3.12
+#!/Users/raghavwate/Documents/Project_Resume_Classificaton/Project_Resume_Classification/resume_model/resume_venv/bin/python3.12
 # -*- coding: utf-8 -*-
 import re
 import sys
