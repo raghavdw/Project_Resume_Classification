@@ -3,3 +3,6 @@ uvicorn
 joblib
 pydantic
 PyYAML
+pandas
+scikit-learn
+pytest
